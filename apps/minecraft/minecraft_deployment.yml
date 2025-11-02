@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minecraft-deployment
+  namespace: minecraft-deployment
+  labels:
+    app.kubernetes.io/name: minecraft-java
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: minecraft-java
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: minecraft-java
+    spec:
+      containers:
+        - name: paper-minecraft-java
+          image: itzg/minecraft-server
+          env:
+            - name: TYPE
+              value: "FOLIA"
+            - name: EULA
+              value: "true"
+            - name: RCON_CMDS_STARTUP
+              value: "op godlygodlygod"
+            - name: MAX_MEMORY
+              value: "10G"
+          ports:
+            - containerPort: 25565
+          readinessProbe:
+            tcpSocket:
+              port: 25565
+
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1

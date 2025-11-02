@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: minecraft-java
+  namespace: minecraft-deployment
+spec:
+  containers:
+    - name: paper-minecraft-java
+      image: itzg/minecraft-server
+      env:
+        - name: TYPE
+          value: "PAPER"
+        - name: VERSION
+          value: "1.21.10"
+        - name: EULA
+          value: "true"
+        - name: RCON_CMDS_STARTUP
+          value: "op godlygodlygod"
+        - name: MAX_MEMORY
+          value: "10G"
+      ports:
+        - containerPort: 25565
+      readinessProbe:
+        tcpSocket:
+          port: 25565
