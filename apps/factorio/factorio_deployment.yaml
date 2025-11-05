@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: factorio
+  namespace: factorio
+  labels:
+    app.kubernetes.io/name: factorio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: factorio
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: factorio
+    spec:
+      containers:
+        - name: factorio
+          image: factoriotools/factorio:latest
+          ports:
+            - containerPort: 34197
+          env:
+            - name: BIND
+              value: 0.0.0.0
+          livenessProbe:
+            tcpSocket:
+              port: 34197
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
