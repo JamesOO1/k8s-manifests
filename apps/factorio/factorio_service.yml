@@ -5,7 +5,9 @@ metadata:
   namespace: factorio
 spec:
   type: NodePort
-  externalTrafficPolicy: Local    # include if you need source IPs. This will require targeting the node the pod is running on.
+  # Include the ExternalTrafficPolicy if you need source IPs.
+  # This will require targeting the node the pod is running on.
+  externalTrafficPolicy: Local
   selector:
     app.kubernetes.io/name: factorio
   ports:
