@@ -1,0 +1,7 @@
+*secret*
+*token*
+/apps/cloudflare_tunnel/tunnel-token.yaml
+/apps/factorio/factorio-rcon-secret.yaml
+/WIP/
+/.idea/
+/K8SManifests.iml

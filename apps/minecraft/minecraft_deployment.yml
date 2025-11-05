@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/name: minecraft-java
 spec:
-  replicas: 1
+  replicas: 25
   selector:
     matchLabels:
       app.kubernetes.io/name: minecraft-java
