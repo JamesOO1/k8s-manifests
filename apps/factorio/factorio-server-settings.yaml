@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: factorio-server-settings-tpl
+  namespace: factorio
+data:
+  server-settings.json.tpl: |
+    {
+      "name": "server_name,
+      "description": "description_name",
+      "visibility": "public",
+      "username": "usernamePlaceholder",
+      "token": "${TOKEN}",
+      "game_password": "",
+      "require_user_verification": true,
+      "max_players": 100,
+      "tags": [],
+      "admins": []
+    }

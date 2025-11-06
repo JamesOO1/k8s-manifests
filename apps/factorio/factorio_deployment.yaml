@@ -15,23 +15,50 @@ spec:
       labels:
         app.kubernetes.io/name: factorio
     spec:
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 845
-        runAsGroup: 845
-        fsGroup: 845
       volumes:
+        - name: tpl
+          configMap:
+            name: factorio-server-settings-tpl
+        - name: rendered
+          emptyDir: { }
         - name: data
           emptyDir: { }
-        - name: rcon-secret
-          secret:
-            secretName: factorio-rcon
-
+      initContainers:
+        - name: render-server-settings
+          image: alpine:3.20
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: factorio-online-token
+                  key: TOKEN
+          command: [ "/bin/sh","-c" ]
+          args:
+            - |
+              set -eu
+              sed "s|\${TOKEN}|${TOKEN}|g" /tpl/server-settings.json.tpl > /rendered/server-settings.json
+          volumeMounts:
+            - name: tpl
+              mountPath: /tpl
+            - name: rendered
+              mountPath: /rendered
       containers:
         - name: factorio
           image: factoriotools/factorio:latest
           imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: rendered
+              mountPath: /factorio/config/server-settings.json
+              subPath: server-settings.json
+            - name: data
+              mountPath: /factorio
           env:
+            - name: TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: factorio-online-token
+                  key: token
             - name: SAVE_NAME
               value: "world"
             - name: LOAD_LATEST_SAVE
@@ -40,26 +67,12 @@ spec:
               value: "true"
             - name: PORT
               value: "34197"
-            - name: RCON
-              value: "true"
             - name: RCON_PORT
               value: "27015"
-          envFrom:
-            - secretRef:
-                name: factorio-rcon
           ports:
             - name: factorio
               containerPort: 34197
               protocol: UDP
-            - name: rcon
-              containerPort: 27015
-              protocol: TCP
-          volumeMounts:
-            - name: data
-              mountPath: /factorio
-            - name: rcon-secret
-              mountPath: /run/secret/rcon
-              readOnly: true
           resources:
             requests:
               cpu: "1"
@@ -67,17 +80,6 @@ spec:
             limits:
               cpu: "2"
               memory: "4Gi"
-          livenessProbe:
-            tcpSocket:
-              port: rcon
-            initialDelaySeconds: 60
-            periodSeconds: 20
-
-          readinessProbe:
-            tcpSocket:
-              port: rcon
-            initialDelaySeconds: 30
-            periodSeconds: 10
 
   strategy:
     type: RollingUpdate
